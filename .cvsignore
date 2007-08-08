@@ -1,0 +1,10 @@
+*~
+.*~
+
+*.afs[atm]
+*.gfs[atm]
+*.lab
+*.scl
+*.sym
+
+ma-dwds-hacks
