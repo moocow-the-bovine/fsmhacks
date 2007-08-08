@@ -5,7 +5,7 @@ DOT="dot"
 DOTFLAGS="-Tps -Gcharset=latin1"
 
 GV="gv"
-GVFLAGS="--spartan --orientation=landscape"
+GVFLAGS="--spartan --orientation=landscape --noantialias"
 
 PSFILE=`fsm_tempfile dotgv .ps`
 
