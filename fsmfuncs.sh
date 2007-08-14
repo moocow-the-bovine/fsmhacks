@@ -23,7 +23,7 @@ fsm2gfsm_compile_flags() {
 
 ## filename=`fsm_tempfile PREFIX SUFFIX`
 fsm_tempfile() {
-  if test -z `which tempfile 2>/dev/null` ; then
+  if test -n `which tempfile 2>/dev/null` ; then
    tempfile --prefix="$1" --suffix="$2"
   else
     echo "/tmp/$1_$$$2"
