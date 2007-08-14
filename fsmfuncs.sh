@@ -13,7 +13,8 @@ fsm_is_transducer() {
 
 ## flags=`fsm2gfsm_compile_flags $afsmfile`
 fsm2gfsm_compile_flags() {
-  if test `fsm_is_transducer "$@"` != "y" ; then
+  fsm2gfsm_is_transducer=`fsm_is_transducer "$@"`
+  if test "$fsm2gfsm_is_transducer" != "y" ; then
     echo "-a"
   fi
 }
@@ -23,7 +24,7 @@ fsm2gfsm_compile_flags() {
 
 ## filename=`fsm_tempfile PREFIX SUFFIX`
 fsm_tempfile() {
-  if test -n `which tempfile 2>/dev/null` ; then
+  if test -n "`which tempfile 2>/dev/null`" ; then
    tempfile --prefix="$1" --suffix="$2"
   else
     echo "/tmp/$1_$$$2"
