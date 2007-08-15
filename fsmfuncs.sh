@@ -19,6 +19,19 @@ fsm2gfsm_compile_flags() {
   fi
 }
 
+## y_or_n=`gfsm_is_transducer $gfsmfile`
+gfsm_is_transducer() {
+  gfsmheader "$@" | grep '^flags\.is_transducer' | cut -d':' -f2 | sed -e's/^ *//1' -e's/^1/y/1' -e's/^0/n/1'
+}
+
+## flags=`gfsm2fsm_compile_flags $gfsmfile`
+gfsm2fsm_compile_flags() {
+  gfsm2fsm_is_transducer=`gfsm_is_transducer "$@"`
+  if test "$gfsm2fsm_is_transducer" != "n" ; then
+    echo "-t"
+  fi
+}
+
 ##----------------------------------------------------------------------
 ## temp files
 
