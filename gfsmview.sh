@@ -3,4 +3,4 @@
 GFSMDRAW=gfsmdraw
 DOTGV=dotgv.sh
 
-exec $GFSMDRAW $* | $DOTGV
+exec $GFSMDRAW "$@" | $DOTGV
