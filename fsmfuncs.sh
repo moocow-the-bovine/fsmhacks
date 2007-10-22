@@ -53,6 +53,17 @@ fsm2ofsm_compile_flags() {
   fi
 }
 
+## flags=`gfsm2ofsm_compile_flags $gfsmfile`
+gfsm2ofsm_compile_flags() {
+  gfsm2ofsm_is_transducer=`gfsm_is_transducer "$@"`
+  if test "$gfsm2ofsm_is_transducer" != "n" ; then
+    echo "--acceptor=false"
+  else
+    echo "--acceptor=true"
+  fi
+}
+
+
 ##----------------------------------------------------------------------
 ## temp files
 
