@@ -8,6 +8,7 @@ GV="gv"
 #GVFLAGS="--spartan --orientation=landscape --noantialias"
 
 PSFILE=`fsm_tempfile dotgv .ps`
+EPSFILE="${PSFILE}.eps"
 
 ##-- get GVFLAGS
 if test -z "$GVFLAGS" ; then
@@ -19,7 +20,7 @@ if test -z "$GVFLAGS" ; then
       GV_VERSION="$GV_OPT_V"
     else
       GV_VERSION="$GV_OPT_VERSION"
-    fi
+   fi
   elif test -n "$GV_OPT_V" ; then
     GV_VERSION="$GV_OPT_V"
   elif test -n "$GV_OPT_VERSION" ; then
@@ -64,4 +65,6 @@ for arg in $* ; do
 done
 
 $DOT -o "$PSFILE" $DOTFLAGS
-exec gv $GVFLAGS "$PSFILE"
+#gs -q -dNOPAUSE -dBATCH -sDEVICE=epswrite -sOutputFile="$EPSFILE" "$PSFILE"
+ps2epsi "$PSFILE" "$EPSFILE"
+gv $GVFLAGS "$EPSFILE"
