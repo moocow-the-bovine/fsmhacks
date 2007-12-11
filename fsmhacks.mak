@@ -140,6 +140,13 @@ locext{%}.afst: %.afst notdom{%}.afst
 %.ofst.gfst: %.ofst
 	fstprint --numeric=true $< | gfsmcompile -F $@
 
+##-- conversion: .gfst <-> *.gfsx
+%.gfst.gfsx: %.gfst
+	gfsmindex $< -F $@
+%.gfsx.gfst: %.gfsx
+	gfsmindex -u $< -F $@
+
+
 ##-- conversion: * -> *.ofst
 %.afst.ofst: %.afst
 	fsm2gfsm.sh $< -F $@
