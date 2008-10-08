@@ -18,5 +18,6 @@ lexcompre \
   "$@" \
 | fsmcompose - "$fsmfile" \
 | lexfsmstrings -l "$symbase.lab" -S "$symbase.scl" \
-| sort -t'<' -k2 -n
+| fsmstringsort.perl
 
+#| sort -t'<' -k2 -n
