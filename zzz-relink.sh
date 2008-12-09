@@ -1,19 +1,29 @@
 #!/bin/sh
 
 FORCE="yes"
+BINDIR="$HOME/local/bin"
+DUMMY="no"
+
+runcmd() {
+  if test "$DUMMY" = "yes"; then
+    echo -n " [DUMMY: " "$@" "] " 1>&2
+  else
+    "$@"
+  fi
+}
 
 for f in `find . -maxdepth 1 -type f -not -name '*~' -not -name '.*' -not -name 'zzz*'` ; do
   b=`basename $f`
   echo -n "$b: "
   if [ -n "$FORCE" -a "$FORCE" != "no" ] ; then
     echo -n "force-removing, "
-    rm -f ~/local/bin/$b
+    runcmd rm -f "$BINDIR/$b"
+  elif [ -e "$BINDIR/$b" ] ; then
+   echo "exists: skipping"
+    continue
   fi
-  if [ -e ~/local/bin/$b ] ; then
-    echo "exists: skipping"
-  else
-    echo "linking"
-    ln -s $PWD/$b ~/local/bin
-  fi
+  echo -n "linking"
+  runcmd ln -s "$PWD/$b" "$BINDIR/"
+  echo
 done
 
