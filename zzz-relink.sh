@@ -3,6 +3,7 @@
 FORCE="yes"
 BINDIR="$HOME/local/bin"
 DUMMY="no"
+THISDIR="`readlink -f $PWD`"
 
 runcmd() {
   if test "$DUMMY" = "yes"; then
@@ -23,7 +24,7 @@ for f in `find . -maxdepth 1 -type f -not -name '*~' -not -name '.*' -not -name 
     continue
   fi
   echo -n "linking"
-  runcmd ln -s "$PWD/$b" "$BINDIR/"
+  runcmd ln -s "$THISDIR/$b" "$BINDIR/"
   echo
 done
 
