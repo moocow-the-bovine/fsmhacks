@@ -198,24 +198,24 @@ sub tt_get_sentence {
 push(@ARGV, '-') if (!@ARGV);
 
 ##-- report config
-print STDERR
-  ("$progname config:\n",
-   "  + Files:\n",
-   "    - input labels : ", ($input_labfile||'(none)'), "\n",
-   "    - input FSM    : ", ($input_fsmfile||'(none)'), "\n",
-   "    - output labels: ", ($output_labfile||'(none)'), "\n",
-   "    - output FSM   : ", ($output_fsmfile||'(none)'), "\n",
-   "  + Options:\n",
-   "    - bos          : ", ($bos_str||'(none)'), "\n",
-   "    - eos          : ", ($eos_str||'(none)'), "\n",
-   ($char_symbols && !$word_strings
-    ? ("    - eow          : ", ($eow_str||'(none)'), "\n")
-    : qw()),
-   "    - direction    : ", ($reverse_input ? 'right-to-left (STA)' : 'left-to-right (PTA)'), "\n",
-   "    - symbols      : ", ($char_symbols  ? 'characters' : 'words'), "\n",
-   "    - strings      : ", ($word_strings  ? 'words' : 'sentences'), "\n",
-   "    - FSM          : ", ($list_all  ? 'list' : 'trie'), "\n",
-  );
+vmsg(1,
+     ("$progname config:\n",
+      "  + Files:\n",
+      "    - input labels : ", ($input_labfile||'(none)'), "\n",
+      "    - input FSM    : ", ($input_fsmfile||'(none)'), "\n",
+      "    - output labels: ", ($output_labfile||'(none)'), "\n",
+      "    - output FSM   : ", ($output_fsmfile||'(none)'), "\n",
+      "  + Options:\n",
+      "    - bos          : ", ($bos_str||'(none)'), "\n",
+      "    - eos          : ", ($eos_str||'(none)'), "\n",
+      ($char_symbols && !$word_strings
+       ? ("    - eow          : ", ($eow_str||'(none)'), "\n")
+       : qw()),
+      "    - direction    : ", ($reverse_input ? 'right-to-left (STA)' : 'left-to-right (PTA)'), "\n",
+      "    - symbols      : ", ($char_symbols  ? 'characters' : 'words'), "\n",
+      "    - strings      : ", ($word_strings  ? 'words' : 'sentences'), "\n",
+      "    - FSM          : ", ($list_all  ? 'list' : 'trie'), "\n",
+     ));
 
 ##-- initialize alphabet
 our $abet = Gfsm::Alphabet->new();
