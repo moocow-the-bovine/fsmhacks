@@ -12,9 +12,8 @@ shift
 fsmfile="$1"
 shift
 
-labs=`echo "$string" | gfsmlabels -l "$labfile"`
-gfsmlookup -f "$gfsmfile" "$labs" \
-| gfsmstrings -l "$symbase.lab" -a \
+gfsmlookup -f "$gfsmfile" `echo "$string" | gfsmlabels -l "$labfile"` \
+| gfsmstrings -i "$labfile" -o "$labfile" -a \
 | fsmstringsort.perl
 
 #| sort -t'<' -k2 -n
