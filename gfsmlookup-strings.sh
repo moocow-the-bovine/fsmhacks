@@ -13,7 +13,8 @@ fsmfile="$1"
 shift
 
 gfsmlookup -f "$fsmfile" `echo "$string" | gfsmlabels -l "$labfile"` \
-| gfsmstrings -i "$labfile" -o "$labfile" -a \
-| fsmstringsort.perl
+| gfsmstrings -i "$labfile" -o "$labfile" -a
 
+#| fsmstringsort.perl
+##--
 #| sort -t'<' -k2 -n
