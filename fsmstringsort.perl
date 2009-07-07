@@ -11,6 +11,10 @@ while (<>) {
   chomp;
   ($istr,$ostr_cost) = split(/\t/,$_,2);
   $istr = '' if (!defined($istr));
+  if (!defined($ostr_cost)) {
+    $ostr_cost = $istr;
+    $istr =~ s/\<[^\>]*\>\}*$//;
+  }
   if ($ostr_cost =~ /^(.*)\<(\d*\.?\d+)\>$/) {
     ($ostr,$cost) = ($1,$2);
   } else {
