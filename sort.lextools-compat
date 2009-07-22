@@ -1,0 +1,18 @@
+#!/bin/bash
+
+sort_sys="sort.sys"
+
+args=()
+for arg in "$@"; do
+  case "$arg" in
+    +*)
+      arg=`echo "$arg" | cut -b 2-`
+      args[${#args[@]}]="-k$arg"
+      ;;
+    *)
+      args[${#args[@]}]="$arg"
+      ;;
+  esac
+done
+
+exec $sort_sys "${args[@]}"
