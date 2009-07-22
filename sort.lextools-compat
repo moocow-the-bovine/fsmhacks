@@ -1,13 +1,17 @@
 #!/bin/bash
 
-sort_sys="sort.sys"
+sort_sys="sort.system"
 
 args=()
 for arg in "$@"; do
   case "$arg" in
     +*)
-      arg=`echo "$arg" | cut -b 2-`
-      args[${#args[@]}]="-k$arg"
+      nn="${arg:1}"
+      n0="${nn%%-*}"
+      n1="${nn#*-}"
+      let "n0=$n0+1";
+      let "n1=$n1+1";
+      args=("${args[@]}" -k "$n0,$n1")
       ;;
     *)
       args[${#args[@]}]="$arg"
@@ -15,4 +19,6 @@ for arg in "$@"; do
   esac
 done
 
+#echo "$0: called as: $0 $*" 1>&2
+#echo "$0: calling  : $sort_sys ${args[@]}" 1>&2
 exec $sort_sys "${args[@]}"
