@@ -6,4 +6,5 @@ if test -z "$*" -o "$1" = "-h"; then
 fi
 
 sym="$1"
-echo "sym=\"$sym\"; lab=\"\$sym.lab\"; scl=\"\$sym.scl\"; labscl=\"-l \\\"\$lab\\\" -S \\\"\$scl\\\"\"; iolab=\"-i \\\"\$lab\\\" -o\\\"\$lab\\\"\""
+#echo "sym=\"$sym\"; lab=\"\$sym.lab\"; scl=\"\$sym.scl\"; labscl=\"-l \\\"\$lab\\\" -S \\\"\$scl\\\"\"; iolab=\"-i \\\"\$lab\\\" -o\\\"\$lab\\\"\""
+echo "sym=$sym; lab=\$sym.lab; scl=\$sym.scl; labscl=\"-l \$lab -S \$scl\"; iolab=\"-i \$lab\\ -o\$lab\";"
