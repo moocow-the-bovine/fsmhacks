@@ -28,6 +28,7 @@ our $list_all     = 0;     ##-- if true, *very* sparse literal list is built
 our $bos_str      = '__$'; ##-- string to use as  a BOS marker
 our $eos_str      = '__$'; ##-- string to use as an EOS marker
 our $eow_str      = '__#'; ##-- string to use as an EOW marker
+our $read_costs   = 1;     ##-- input contains costs?
 
 select(STDERR); $|=1; select(STDOUT);
 
@@ -58,6 +59,7 @@ GetOptions(##-- general
 	   'sent-strings|sentences|sents|S!' => sub { $word_strings = !$_[1]; },
 	   'word-strings|W!' => sub { $word_strings = $_[1]; },
 	   'list-all|list|all|la!'  => \$list_all,
+	   'weighted|costs|wt|C' => \$read_costs,
 	  );
 
 pod2usage({

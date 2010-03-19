@@ -13,7 +13,7 @@ runcmd() {
   fi
 }
 
-for f in `find . -maxdepth 1 -type f -not -name '*~' -not -name '.*' -not -name 'zzz*'` ; do
+for f in `find -L . -maxdepth 1 -type f -a -not -name '*~' -a -not -name '.*' -a -not -name 'zzz*'` ; do
   b=`basename $f`
   echo -n "$b: "
   if [ -n "$FORCE" -a "$FORCE" != "no" ] ; then
