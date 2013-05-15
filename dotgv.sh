@@ -1,4 +1,4 @@
-#!/bin/sh
+#!/bin/bash
 
 . "`dirname $0`/fsmfuncs.sh"
 DOT="dot"
@@ -64,7 +64,13 @@ for arg in $* ; do
   esac
 done
 
-$DOT -o "$PSFILE" $DOTFLAGS
+system() {
+  echo "$@" >&2
+  "$@"
+}
+
+system $DOT -o "$PSFILE" $DOTFLAGS
 #gs -q -dNOPAUSE -dBATCH -sDEVICE=epswrite -sOutputFile="$EPSFILE" "$PSFILE"
-ps2epsi "$PSFILE" "$EPSFILE"
-gv $GVFLAGS "$EPSFILE"
+#system ps2epsi "$PSFILE" "$EPSFILE"
+EPSFILE="$psfile"
+system gv $GVFLAGS "$EPSFILE"
