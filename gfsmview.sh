@@ -18,6 +18,7 @@ test -n "$pdfviewer"  || pdfviewer=xpdf
 test -n "$pngviewer" || pngviewer=`which eog`
  test -n "$pngviewer" || pngviewer=`which geeqie`
  test -n "$pngviewer" || pngviewer=`which xloadimage`
+test -n "$figviewer"  || figviewer='xfig -nosplash'
 test -n "$svgviewer" || svgviewer=`which sensible-browser`
 test -n "$dotviewer"  || dotviewer=dotty
 
@@ -45,6 +46,10 @@ for a in "$@" ; do
     -png)
       dotfmt="png"
       viewcmd=($pngviewer)
+      ;;
+    -fig|-xfig)
+      dotfmt="fig"
+      viewcmd=($figviewer)
       ;;
     -svg)
       dotfmt="svg"
@@ -115,7 +120,7 @@ fmtfile="${dotfile}.${dotfmt}"
 test "$dotfmt" = "ps" && viewargs=("${viewargs[@]}" "${aaargs[@]}")
 
 system() {
-  #echo "$0: $@" >&2
+  echo "$0: $@" >&2
   "$@"
 }
 
