@@ -11,7 +11,7 @@ fsm_tempfile() {
 
 test -n "$drawcmd" || drawcmd=gfsmdraw
 test -n "$dotcmd" || dotcmd=dot
-test -n "$dotenc" || dotenc="latin1"
+test -n "$dotenc" || dotenc="utf8"
 
 test -n "$psviewer"  || psviewer='gv -spartan'
 test -n "$pdfviewer"  || pdfviewer=xpdf
