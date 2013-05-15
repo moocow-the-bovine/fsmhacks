@@ -22,7 +22,7 @@ test -n "$svgviewer" || svgviewer=`which sensible-browser`
 test -n "$dotviewer"  || dotviewer=dotty
 
 drawargs=()
-dotfilter=(egrep -v '^ (rotate|size) = ')
+dotfilter=(egrep -v '^[ ]*(rotate|size|orientation)[ ]*=')
 dotfmt=ps
 dotargs=()
 viewcmd=($psviewer -noantialias)
@@ -50,9 +50,13 @@ for a in "$@" ; do
       dotfmt="svg"
       viewcmd=($svgviewer)
       ;;
-    -dot|-dotty)
+    -dotty)
       dotfmt="dot"
       viewcmd=($dotviewer)
+      ;;
+    -dot)
+      dotfmt="dot"
+      viewcmd=(cat)
       ;;
 
     ##-- viewer

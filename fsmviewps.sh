@@ -1,6 +1,3 @@
-#!/bin/sh
+#!/bin/bash
 
-FSMDRAW=fsmdraw
-DOTGV=dotgv.sh
-
-exec $FSMDRAW "$@" | $DOTGV
+env drawcmd=fsmdraw "`dirname $0`/gfsmview.sh" "$@"
