@@ -9,7 +9,7 @@ use Gfsm;
 ## Globals
 ##----------------------------------------------------------------------
 
-our $VERSION = "0.01";
+our $VERSION = "0.02";
 
 ##-- program vars
 our $progname     = basename($0);
@@ -30,6 +30,8 @@ our $eos_str      = '__$'; ##-- string to use as an EOS marker
 our $eow_str      = '__#'; ##-- string to use as an EOW marker
 our $read_costs   = 1;     ##-- input contains costs?
 
+our $encoding = 'raw';
+
 select(STDERR); $|=1; select(STDOUT);
 
 ##----------------------------------------------------------------------
@@ -40,6 +42,7 @@ GetOptions(##-- general
 	   'man|m'  => \$man,
 	   'version|V' => \$version,
 	   'verbose|v=i' => \$verbose,
+	   'encoding|enc=s' => \$encoding,
 
 	   ##-- Initialization / Input
 	   'input-trie|it|t|input-fsm|ifsm|if|f=s' => \$input_fsmfile,
@@ -62,14 +65,8 @@ GetOptions(##-- general
 	   'weighted|costs|wt|C' => \$read_costs,
 	  );
 
-pod2usage({
-	   -exitval=>0,
-	   -verbose=>0
-	  }) if ($help);
-pod2usage({
-	   -exitval=>0,
-	   -verbose=>1
-	  }) if ($man);
+pod2usage({-exitval=>0, -verbose=>0}) if ($help);
+pod2usage({-exitval=>0,-verbose=>1}) if ($man);
 
 if ($version || $verbose >= 1) {
   print STDERR "$progname version $VERSION by Bryan Jurish\n";
@@ -108,17 +105,17 @@ sub add_string {
 
   if (!$list_all) {
     ##-- trie mode
-    $fsm->add_path(\@string_labs,[],$string_count);
+    $fsm->add_path(\@string_labs,[],($read_costs ? $string_count : 0));
   }
   else {
     ##-- list mode
     $qfrom = $qto = $fsm->root();
     foreach $lab (@string_labs) {
       $qto = $fsm->add_state();
-      $fsm->add_arc($qfrom,$qto,$lab,$Gfsm::epsilon,$string_count);
+      $fsm->add_arc($qfrom,$qto,$lab,$Gfsm::epsilon,($read_costs ? $string_count : 0));
       $qfrom = $qto;
     }
-    $fsm->final_weight($qto,$string_count);
+    $fsm->final_weight($qto,($read_costs ? $string_count : 0));
   }
 }
 
@@ -129,8 +126,9 @@ sub process_chars_words {
   #$sent = shift;
   foreach $tok (@$sent) {
     $txt = ref($tok) ? $tok->text : $tok;
+    $cost = ($read_costs && $txt =~ s/\s*<([0-9\.eE\+\-]+)>$// ? $1 : 1),
     @tchars = split(//,$txt);
-    add_string(\@tchars,1);
+    add_string(\@tchars,$cost);
   }
 }
 
@@ -208,6 +206,7 @@ vmsg(1,
       "    - output labels: ", ($output_labfile||'(none)'), "\n",
       "    - output FSM   : ", ($output_fsmfile||'(none)'), "\n",
       "  + Options:\n",
+      "    - encoding     : ", ($encoding||'raw'), "\n",
       "    - bos          : ", ($bos_str||'(none)'), "\n",
       "    - eos          : ", ($eos_str||'(none)'), "\n",
       ($char_symbols && !$word_strings
@@ -216,8 +215,12 @@ vmsg(1,
       "    - direction    : ", ($reverse_input ? 'right-to-left (STA)' : 'left-to-right (PTA)'), "\n",
       "    - symbols      : ", ($char_symbols  ? 'characters' : 'words'), "\n",
       "    - strings      : ", ($word_strings  ? 'words' : 'sentences'), "\n",
+      "    - costs        : ", ($read_costs ? "yes" : "no"), "\n",
       "    - FSM          : ", ($list_all  ? 'list' : 'trie'), "\n",
      ));
+
+##-- init encoding
+$encoding = undef if (!$encoding || $encoding eq 'raw' || $encoding eq 'bin');
 
 ##-- initialize alphabet
 our $abet = Gfsm::Alphabet->new();
@@ -259,6 +262,7 @@ foreach $ttfile (@ARGV) {
   vmsg(2,"$progname: processing TT file: $ttfile ...");
 
   open(TT,"<$ttfile") or die("$progname: open failed for '$ttfile': $!");
+  binmode(TT,":encoding($encoding)") if ($encoding);
 
   $i=-1;
   while ($sent=tt_get_sentence(\*TT)) {
@@ -279,8 +283,20 @@ foreach $ttfile (@ARGV) {
 
 ##-- save stuff
 if (defined($output_labfile)) {
-  $abet->save($output_labfile)
-    or die("$progname: save failed for labels file '$output_labfile': $!");
+  if (!$encoding) {
+    ##-- doesn't work right for e.g. utf8-encoded alphabets
+    $abet->save($output_labfile)
+      or die("$progname: save failed for labels file '$output_labfile': $!");
+  } else {
+    ##-- we need to write the alphabet ourselves for non-trivial encodings
+    open(ABET,">$output_labfile")
+      or die("$progname: open failed for output labels file '$output_labfile': $!");
+    binmode(ABET,":encoding($encoding)");
+    my $labs = $abet->asArray;
+    do { utf8::decode($_) if (!utf8::is_utf8($_)) } foreach (@$labs);
+    print ABET map {"$labs->[$_]\t$_\n"} (0..$#$labs);
+    close ABET;
+  }
 }
 
 if (defined($output_fsmfile)) {
@@ -302,12 +318,13 @@ tt-gfsm-maketrie.perl - convert a .tt file to to a prefix- or suffix-tree accept
 
 =head1 SYNOPSIS
 
- corpus2pta.perl OPTIONS [CORPUS_FILE(s)]
+ tt-gfsm-maketrie.perl OPTIONS [CORPUS_FILE(s)]
 
  General Options:
    -help
    -version
    -verbose LEVEL
+   -encoding ENC                           # input encoding (default=raw)
 
  I/O Options:
    -input-fsm     GFSMFILE , -if GFSMFILE  # initial FSM
@@ -325,6 +342,7 @@ tt-gfsm-maketrie.perl - convert a .tt file to to a prefix- or suffix-tree accept
    -sent-strings , -S      # fsm paths are input sentences      (default)
    -word-strings , -W      # fsm paths are input words
    -list-all     , -la     # build parallel list, not a trie
+   -read-costs   , -C      # read input cost suffixes <COST>
 
 =cut
 
@@ -404,7 +422,7 @@ Perl by Larry Wall.
 
 =head1 AUTHOR
 
-Bryan Jurish E<lt>moocow@ling.uni-potsdam.deE<gt>
+Bryan Jurish E<lt>moocow@cpan.orgE<gt>
 
 =head1 SEE ALSO
 
