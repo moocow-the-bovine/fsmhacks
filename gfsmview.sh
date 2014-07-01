@@ -73,6 +73,12 @@ for a in "$@" ; do
     -e=*)
       dotenc="${a#-e=}"
       ;;
+    -utf8)
+      dotenc="utf8"
+      ;;
+    -latin1)
+      dotenc="latin1"
+      ;;
 
     ##-- antialiasing
     -aa|-antialias)
