@@ -2,7 +2,7 @@
 
 . "`dirname $0`/fsmfuncs.sh"
 DOT="dot"
-DOTFLAGS="-Tps -Gcharset=latin1"
+DOTFLAGS="-Tps" #-Gcharset=latin1
 
 GV="gv"
 #GVFLAGS="--spartan --orientation=landscape --noantialias"
@@ -72,5 +72,5 @@ system() {
 system $DOT -o "$PSFILE" $DOTFLAGS
 #gs -q -dNOPAUSE -dBATCH -sDEVICE=epswrite -sOutputFile="$EPSFILE" "$PSFILE"
 #system ps2epsi "$PSFILE" "$EPSFILE"
-EPSFILE="$psfile"
+EPSFILE="$PSFILE"
 system gv $GVFLAGS "$EPSFILE"
