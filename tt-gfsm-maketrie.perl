@@ -9,7 +9,7 @@ use Gfsm;
 ## Globals
 ##----------------------------------------------------------------------
 
-our $VERSION = "0.02";
+our $VERSION = "0.03";
 
 ##-- program vars
 our $progname     = basename($0);
@@ -29,6 +29,9 @@ our $bos_str      = '__$'; ##-- string to use as  a BOS marker
 our $eos_str      = '__$'; ##-- string to use as an EOS marker
 our $eow_str      = '__#'; ##-- string to use as an EOW marker
 our $read_costs   = 1;     ##-- input contains costs?
+our $srtype       = undef; ##-- semiring type for default automaton
+our $project      = 0;     ##-- project an acceptor?
+our $minimize     = 0;     ##-- minimize result?
 
 our $encoding = 'raw';
 
@@ -62,7 +65,16 @@ GetOptions(##-- general
 	   'sent-strings|sentences|sents|S!' => sub { $word_strings = !$_[1]; },
 	   'word-strings|W!' => sub { $word_strings = $_[1]; },
 	   'list-all|list|all|la!'  => \$list_all,
-	   'weighted|costs|wt|C' => \$read_costs,
+	   'weighted|costs|wt|C!' => \$read_costs,
+	   'semiring-type|srtype|srt|sr=s' => \$srtype,
+	   'anchors|A!' => sub {
+	     $bos_str = $eos_str = ($_[1] ? '__$' : '');
+	     $eow_str = ($_[1] ? '__#' : '');
+	   },
+	   'project|p=i' => \$project,
+	   'p1|1!' => sub { $project=($_[1] ? 1 : 0); },
+	   'p2|2!' => sub { $project=($_[2] ? 2 : 0); },
+	   'minimize|min|M!' => \$minimize,
 	  );
 
 pod2usage({-exitval=>0, -verbose=>0}) if ($help);
@@ -216,7 +228,10 @@ vmsg(1,
       "    - symbols      : ", ($char_symbols  ? 'characters' : 'words'), "\n",
       "    - strings      : ", ($word_strings  ? 'words' : 'sentences'), "\n",
       "    - costs        : ", ($read_costs ? "yes" : "no"), "\n",
+      "    - semiring     : ", (defined($srtype) ? $srtype : "(undef)"), "\n",
       "    - FSM          : ", ($list_all  ? 'list' : 'trie'), "\n",
+      "    - project      : ", ($project // 'no'), "\n",
+      "    - minimize     : ", ($minimize ? "yes" : "no"), "\n",
      ));
 
 ##-- init encoding
@@ -249,8 +264,28 @@ if (defined($input_fsmfile)) {
   $fsm->load($input_fsmfile)
     or die("$progname: load failed for input FSM file '$input_fsmfile': $!");
   vmsg(1,"$progname: loaded.\n");
-} else {
-  $fsm->semiring_type($Gfsm::SRTReal);
+}
+else {
+  $srtype //= $Gfsm::SRTReal;
+}
+
+##-- get semiring type
+if (defined($srtype)) {
+  if ($srtype =~ /^[0-9]+$/) {
+    ##-- numeric semiring type
+    $fsm->semiring_type($srtype);
+  } elsif (Gfsm->can("SRT$srtype")) {
+    ##-- symbolic semiring type
+    $fsm->semiring_type(Gfsm->can("SRT$srtype")->());
+  } elsif (Gfsm->can("SRT".ucfirst($srtype))) {
+    ##-- symbolic semiring type (lower-case)
+    $fsm->semiring_type(Gfsm->can("SRT".ucfirst($srtype))->());
+  } elsif ($srtype =~ /plog/i) {
+    ##-- symbolic semiring type (lower-case, plog)
+    $fsm->semiring_type($Gfsm::SRTPLog);
+  } else {
+    die("$progname: unknown semiring type '$srtype'");
+  }
 }
 
 ##-- ensure root state exists
@@ -279,6 +314,18 @@ foreach $ttfile (@ARGV) {
   }
 
   vmsg(2," done.\n");
+}
+
+##-- maybe project and minimize
+if ($project) {
+  vmsg(2, "$progname: projecting automaton tape $project...");
+  $fsm = $fsm->project($project) ;
+  vmsg(2, " done.\n");
+}
+if ($minimize) {
+  vmsg(2, "$progname: minimizing output automaton...");
+  $fsm = $fsm->minimize();
+  vmsg(2, " done.\n");
 }
 
 ##-- save stuff
@@ -342,7 +389,11 @@ tt-gfsm-maketrie.perl - convert a .tt file to to a prefix- or suffix-tree accept
    -sent-strings , -S      # fsm paths are input sentences      (default)
    -word-strings , -W      # fsm paths are input words
    -list-all     , -la     # build parallel list, not a trie
-   -read-costs   , -C      # read input cost suffixes <COST>
+   -srtype SRTYPE          # set semiring type (default=real)
+   -[no]costs    , -[no]C  # do/don't read input costs <COST>   (default:do)
+   -[no]anchors  , -[no]A  # do/don't use BOS,EOS,EOW anchors   (default:do)
+   -[no]acceptor , -[no]1  # do/don't output 1st projection     (default:don't)
+   -[no]minimize , -[no]M  # do/don't minimize result           (default:don't)
 
 =cut
 
