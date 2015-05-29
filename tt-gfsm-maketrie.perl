@@ -392,7 +392,9 @@ tt-gfsm-maketrie.perl - convert a .tt file to to a prefix- or suffix-tree accept
    -srtype SRTYPE          # set semiring type (default=real)
    -[no]costs    , -[no]C  # do/don't read input costs <COST>   (default:do)
    -[no]anchors  , -[no]A  # do/don't use BOS,EOS,EOW anchors   (default:do)
-   -[no]acceptor , -[no]1  # do/don't output 1st projection     (default:don't)
+   -project N    , -p N    # project result tape N              (default:0:both)
+   -p1           , -1      # alias for -project=1
+   -p2           , -2      # alias for -project=2
    -[no]minimize , -[no]M  # do/don't minimize result           (default:don't)
 
 =cut
