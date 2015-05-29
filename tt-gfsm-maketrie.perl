@@ -67,7 +67,7 @@ GetOptions(##-- general
 	   'list-all|list|all|la!'  => \$list_all,
 	   'weighted|costs|wt|C!' => \$read_costs,
 	   'semiring-type|srtype|srt|sr=s' => \$srtype,
-	   'anchors|A!' => sub {
+	   'anchors|bounds|boundaries|B!' => sub {
 	     $bos_str = $eos_str = ($_[1] ? '__$' : '');
 	     $eow_str = ($_[1] ? '__#' : '');
 	   },
@@ -391,7 +391,7 @@ tt-gfsm-maketrie.perl - convert a .tt file to to a prefix- or suffix-tree accept
    -list-all     , -la     # build parallel list, not a trie
    -srtype SRTYPE          # set semiring type (default=real)
    -[no]costs    , -[no]C  # do/don't read input costs <COST>   (default:do)
-   -[no]anchors  , -[no]A  # do/don't use BOS,EOS,EOW anchors   (default:do)
+   -[no]bounds   , -[no]B  # do/don't use BOS,EOS,EOW anchors   (default:do)
    -project N    , -p N    # project result tape N              (default:0:both)
    -p1           , -1      # alias for -project=1
    -p2           , -2      # alias for -project=2
