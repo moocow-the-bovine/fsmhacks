@@ -3,13 +3,14 @@
 use Getopt::Long qw(:config no_ignore_case);
 use Pod::Usage;
 use File::Basename qw(basename);
+use Encode qw(encode decode);
 use Gfsm;
 
 ##----------------------------------------------------------------------
 ## Globals
 ##----------------------------------------------------------------------
 
-our $VERSION = "0.03";
+our $VERSION = "0.04";
 
 ##-- program vars
 our $progname     = basename($0);
@@ -106,7 +107,7 @@ sub add_string {
   ($string_symbols,$string_count) = @_;
   @string_labs = (
 		  map {
-		    $lab = $abet->get_label($_);
+		    $lab = $abet->get_label($encoding && utf8::is_utf8($_) ? encode($encoding,$_) : $_);
 		    warn("$progname: label overflow!") if ($lab==$Gfsm::noLabel); ##-- sanity check
 		    $lab
 		  } @$string_symbols
@@ -235,7 +236,7 @@ vmsg(1,
      ));
 
 ##-- init encoding
-$encoding = undef if (!$encoding || $encoding eq 'raw' || $encoding eq 'bin');
+$encoding = undef if (!$encoding || $encoding =~ /^(?:raw|bin)$/i);
 
 ##-- initialize alphabet
 our $abet = Gfsm::Alphabet->new();
