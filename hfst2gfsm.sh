@@ -75,7 +75,8 @@ runcmd hfst-fst2txt --output="$obase.tfst" "$hfst" \
 
 ##-- hack brackets labels?
 if test -z "$brackets"; then
-    runcmd perl -i -pe 's/(\s)\[(\S+)\](\s)/$1_$2$3/sg;' "$obase.tfst"
+    runcmd perl -i -pe 's/(\s)\[([A-Z]+)\](\s)/$1_$2$3/sg; s/(\s)([\+\/A-Z]{2,})(\s)/$1.lc($2).$3/esg;' "$obase.tfst" \
+	   || die "bracket replacement failed"
 fi
 
 ##-- generate labels
@@ -85,10 +86,12 @@ evalcmd "tfst-labels.sh '$obase.tfst' \
     | tt-cut.awk '\$2' \
     | fgrep -vx '@0@' \
     | awk '{print \$1 \"\\t\" NR}' \
-    >> '$obase.lab'"
+    >> '$obase.lab'" \
+    || die "label generation failed"
 
 ##-- compile
-evalcmd "gfsmcompile -l '$obase.lab' '$obase.tfst' -z0 | gfsmarcsort -l -F '$obase.gfst'"
+evalcmd "gfsmcompile -l '$obase.lab' '$obase.tfst' -z0 | gfsmarcsort -l -F '$obase.gfst'" \
+    || die "gfsmcompile failed"
 
 ##-- cleanup
 test -n "$keep" || runcmd rm -f "$obase.tfst"
