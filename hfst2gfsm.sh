@@ -70,7 +70,7 @@ else
 fi
 
 ##-- convert to text
-runcmd hfst-fst2txt --output="$obase.tfst" en-analysis.hfst.ol \
+runcmd hfst-fst2txt --output="$obase.tfst" "$hfst" \
     || die "hfst-fst2txt failed"
 
 ##-- hack brackets labels?
