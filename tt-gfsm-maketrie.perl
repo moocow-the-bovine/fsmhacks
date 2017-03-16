@@ -10,7 +10,7 @@ use Gfsm;
 ## Globals
 ##----------------------------------------------------------------------
 
-our $VERSION = "0.04";
+our $VERSION = "0.05";
 
 ##-- program vars
 our $progname     = basename($0);
@@ -103,11 +103,14 @@ sub vmsg {
 ## undef = add_string(\@symbols, $count)
 ##  + implicity reverses @symbols in reverse-input mode
 ##  + implicitly appends $bos_lab,$eos_lab to (reversed) @symbols if defined
+my (@string_labs,$sym);
 sub add_string {
   ($string_symbols,$string_count) = @_;
+  #print STDERR "add_string: ", join(' ', @$string_symbols), "\n"; ##-- DEBUG
   @string_labs = (
 		  map {
-		    $lab = $abet->get_label($encoding && utf8::is_utf8($_) ? encode($encoding,$_) : $_);
+		    $sym = $encoding && utf8::is_utf8($_) ? encode($encoding,$_) : $_;
+		    $lab = $abet->get_label($sym);
 		    warn("$progname: label overflow!") if ($lab==$Gfsm::noLabel); ##-- sanity check
 		    $lab
 		  } @$string_symbols
