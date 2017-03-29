@@ -33,7 +33,8 @@ GetOptions(##-- general
 	   ##-- Encoding
 	   'input-encoding|ie|encoding|e=s' => \$input_encoding,
 	   'output-encoding|oe=s' => \$output_encoding,
-	   'escape-regops|regops|r!' => \$escape_regops,
+	   'escape-regops|r!' => \$escape_regops,
+	   'keep-regops|regops|R' => sub { $escape_regops=0; },
 	   'escape-utf8|u!' => \$escape_utf8,
 	   'all-utf8|utf8|U' => sub { $input_encoding=$output_encoding='utf8'; $escape_utf8=1; },
 
@@ -58,7 +59,7 @@ sub process_string {
   $s_in = shift;
   chomp($s_in);
   $s_in = decode($input_encoding,$s_in) if ($input_encoding);
-  $s_in =~ s/([\*\+\^\?\!\|\&\:\@\-\(\)\[\]\#])/\\$1/g if ($escape_regops);
+  $s_in =~ s/([\*\+\^\?\!\|\&\:\@\-\(\)\[\]\#])/\\$1/g if ($escape_regops);p
   if ($escape_utf8) {
     $s_out = join('', map {ord($_) >= 0x80 ? "[$_]" : $_} split(//,$s_in));
   } else {
@@ -107,6 +108,7 @@ fsm-att-escape.perl - add at&t lextools escapes to input file(s)
    -ie, -input-encoding ENCODING   # input encoding (default=latin1)
    -oe, -output-encoding ENCODING  # output encoding (defualt=(same as input))
    -r,  -[no]escape-regops         # do/don't escape AT&T regex operators (default=do)
+   -R,  -keep-regops               # alias for -noescape-regops
    -u,  -[no]escape-utf8           # do/don't escape multibyte utf8 characters (default=do)
    -U,  -utf8                      # alias for -ie=utf8 -oe=utf8 -escape-utf8
    -o,  -output OUTFILE            # select output file (default=stdout)
