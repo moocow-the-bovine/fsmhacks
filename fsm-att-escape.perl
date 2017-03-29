@@ -59,7 +59,7 @@ sub process_string {
   $s_in = shift;
   chomp($s_in);
   $s_in = decode($input_encoding,$s_in) if ($input_encoding);
-  $s_in =~ s/([\*\+\^\?\!\|\&\:\@\-\(\)\[\]\#])/\\$1/g if ($escape_regops);p
+  $s_in =~ s/([\*\+\^\?\!\|\&\:\@\-\(\)\[\]\#])/\\$1/g if ($escape_regops);
   if ($escape_utf8) {
     $s_out = join('', map {ord($_) >= 0x80 ? "[$_]" : $_} split(//,$s_in));
   } else {
