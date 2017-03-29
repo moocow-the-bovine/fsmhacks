@@ -9,7 +9,7 @@ no bytes;
 
 ##----------------------------------------------------------------------
 ## Globals
-our $VERSION = "0.01";
+our $VERSION = "0.02";
 
 ##-- program vars
 our $progname = basename($0);
@@ -30,9 +30,10 @@ GetOptions(##-- general
 	   'verbose|v=i' => \$verbose,
 
 	   ##-- Encoding
-	   'input-encoding|ie=s' => \$input_encoding,
+	   'input-encoding|ie|encoding|e=s' => \$input_encoding,
 	   'output-encoding|oe=s' => \$output_encoding,
 	   'escape-utf8|u!' => \$escape_utf8,
+	   'all-utf8|utf8|U' => sub { $input_encoding=$output_encoding='utf8'; $escape_utf8=1; },
 
 	   ##-- I/O
 	   'words|w!' => \$input_words,
@@ -57,7 +58,7 @@ sub process_string {
   $s_in = decode($input_encoding,$s_in) if ($input_encoding);
   $s_in =~ s/([\*\+\^\?\!\|\&\:\@\-\(\)\[\]\#])/\\$1/g;
   if ($escape_utf8) {
-    $s_out = join('', map {bytes::length($_) > 1 ? "[$_]" : $_} split(//,$s_in));
+    $s_out = join('', map {ord($_) >= 0x80 ? "[$_]" : $_} split(//,$s_in));
   } else {
     $s_out = $s_in;
   }
@@ -69,6 +70,7 @@ sub process_string {
 ## MAIN
 $output_encoding = $input_encoding if (!defined($output_encoding));
 open(OUT,">$outfile") or die("$0: open failed for '$outfile': $!");
+binmode(OUT,":raw");
 
 if ($input_words) {
   process_string("$_\n") foreach (@ARGV);
@@ -94,15 +96,17 @@ fsm-att-escape.perl - add at&t lextools escapes to input file(s)
  fsm-att-escape.perl OPTIONS [INPUT_FILE(s)_OR_WORD(s)...]
 
  General Options:
-   -help
-   -version
-   -verbose LEVEL
+   -h, -help                  # this help message
+   -V, -version               # output version and exit
+   -v, -verbose LEVEL         # verbosity level (default=1)
 
  I/O Options:
-   -words                     # inputs are words, not filenames
-   -input-encoding ENCODING   # input encoding (default=latin1)
-   -output-encoding ENCODING  # output encoding (defualt=(same as input))
-   -output OUTFILE            # select output file (default=stdout)
+   -w,  -words                     # inputs are words, not filenames
+   -ie, -input-encoding ENCODING   # input encoding (default=latin1)
+   -oe, -output-encoding ENCODING  # output encoding (defualt=(same as input))
+   -u,  -[no]escape-utf8           # do/don't escape multibyte utf8 characters (default=do)
+   -U,  -utf8                      # alias for -ie=utf8 -oe=utf8 -escape-utf8
+   -o,  -output OUTFILE            # select output file (default=stdout)
 
 =cut
 
