@@ -1,19 +1,45 @@
-#!/bin/sh
+#!/bin/bash
 
-if [ $# -lt 3 ] ; then
-  echo "Usage: $0 LABFILE STRING GFSMFILE"
-  exit 1
+show_help() {
+  echo "Usage: $0 [-u|--utf8] LABFILE STRING GFSMFILE" >&2
+}
+
+args=()
+opts=()
+utf8=()
+while [ $# -gt 0 ] ; do
+    case "$1" in
+	-h|-help|--help)
+	    show_help
+	    exit 0
+	    ;;
+	-u|-utf8|--utf8)
+	    utf8=(--utf8)
+	    ;;
+	*)
+	    if [ ${#args[@]} -lt 3 ]; then
+		args[${#args[@]}]="$1"
+	    else
+		opts[${#opts[@]}]="$1"
+	    fi
+	    ;;
+    esac
+    shift
+done
+
+if [ ${#args[@]} -lt 3 ] ; then
+    show_help
+    exit 0
 fi
 
-labfile="$1"
-shift
-string="$1"
-shift
-fsmfile="$1"
-shift
+labfile="${args[0]}"
+[ \! -e "$labfile" -a -e "$labfile.lab" ] && labfile="$labfile.lab" 
 
-gfsmlookup -f "$fsmfile" `echo "$string" | gfsmlabels -l "$labfile"` \
-| gfsmstrings -i "$labfile" -o "$labfile" -a
+string="${args[1]}"
+fsmfile="${args[2]}"
+
+gfsmlookup -f "$fsmfile" `echo "$string" | gfsmlabels "${utf8[@]}" -l "$labfile"` \
+| gfsmstrings "${utf8[@]}" -i "$labfile" -o "$labfile" -a
 
 #| fsmstringsort.perl
 ##--
